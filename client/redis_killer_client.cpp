@@ -22,22 +22,16 @@ int main(int argc, char* argv[]){
 
         for(;;) {
             std::array<char, 128> read_buf;
-            std::array<char, 128> write_buf;
             asio::error_code error;
             std::string command;
 
-            //read a command from user
-            std::getline(std::cin, command);
-
-            //send message to server
-            socket.send(asio::buffer(command + '\n'));
-
-            // recieve msg from client
+            // recieve msg from server
             size_t len = socket.read_some(asio::buffer(read_buf), error);
 
             if (error == asio::error::eof)
             {
-                ;
+                std::cout << "Connection refused or terminated.";
+                std::cout << '\n';
                 break;
             }
             else if (error)
@@ -48,6 +42,12 @@ int main(int argc, char* argv[]){
             // print response from server
             std::cout.write(read_buf.data(), len);
             std::cout << '\n';
+
+            //read a command from user
+            std::getline(std::cin, command);
+
+            //send message to server
+            socket.send(asio::buffer(command + '\n'));
         }
 
     }

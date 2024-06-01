@@ -14,9 +14,10 @@ class tcp_connection
 public:
     typedef std::shared_ptr<tcp_connection> pointer;
 
-    static pointer create(asio::io_context& io_context, storage_map<std::string, std::string>& storage_)
+    static pointer create(asio::io_context& io_context, storage_map<std::string, 
+        std::string>& storage_, int& clients, int max_clients)
     {   
-        return pointer(new tcp_connection(io_context, storage_));
+        return pointer(new tcp_connection(io_context, storage_, clients, max_clients));
     }
 
     asio::ip::tcp::socket& socket()
@@ -25,29 +26,44 @@ public:
     }
 
     void start()
-    {
+    {   
+        ++clients_;
+        if (clients_ > max_clients_) 
+        {
+            // send a message to client that max num of clients has been reached
+            //socket_.send(asio::buffer("Connection refused because max number of clients has been reached."));
+            // terminate the connection
+            socket_.close();
+            
+            return;
+        }
         spdlog::info("A new client has been connected!");
-        //we will read a msg from client process it and sent it back
-        const char delim = '\n';
-        //read the msg
-        asio::async_read_until(socket_, message_, delim,
-            std::bind(&tcp_connection::handle_read, shared_from_this(),
+        // tell the client that connection has been established
+        std::string welcome_msg = "Connection has been established";
+        response_msg = welcome_msg;
+        //send the msg
+        asio::async_write(socket_, asio::buffer(response_msg), 
+            std::bind(&tcp_connection::handle_write, shared_from_this(),
             asio::placeholders::error, asio::placeholders::bytes_transferred));
         
     }
 
     ~tcp_connection()
     {
+        //decrease ammount of clients
+        --clients_;
         for (auto& cmd : commands)
         {
             delete(cmd.second);
         }
+        spdlog::warn("A client connection has been terminated.");
     }
 
 private:
 
-    tcp_connection(asio::io_context& io_context, storage_map<std::string, std::string>& strg) :
-        socket_(io_context), storage_(strg)
+    tcp_connection(asio::io_context& io_context, storage_map<std::string, std::string>& strg,
+        int& clients, int max_clients) 
+        : socket_(io_context), storage_(strg), clients_(clients), max_clients_(max_clients)
         {
             register_commands();
         }
@@ -123,4 +139,6 @@ private:
         commands.insert({"DEL", new del_command(storage_)});
     }
 
+    int& clients_;
+    int max_clients_;
 };
