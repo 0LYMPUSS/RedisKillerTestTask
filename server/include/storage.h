@@ -48,7 +48,20 @@ public:
     {
         return json(storage_);
     };
-    virtual void deserialize(json j) override {};
+    virtual void deserialize(json j) override 
+    {
+        try
+        {
+            auto m = j.get<std::unordered_map<std::string, std::string>>();
+            for (auto& p : m) {
+                storage_.insert(p);
+            }
+        }
+        catch(...)
+        {
+            spdlog::error("Could not deserialize storage from provided file. Please make sure file contents are valid.");
+        }
+    };
 
     storage_map()
     {

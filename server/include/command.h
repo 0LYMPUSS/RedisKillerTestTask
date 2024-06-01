@@ -73,3 +73,13 @@ public:
     virtual std::string execute(const std::vector<std::string>& data) override;
     
 };
+
+class dump_command
+    : public storage_command
+{
+public:
+    dump_command(storage_map<std::string, std::string>& strg)
+        : storage_command(strg) {}
+
+    virtual std::string execute(const std::vector<std::string>& data) override;
+};

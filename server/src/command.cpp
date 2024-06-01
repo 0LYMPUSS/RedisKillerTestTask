@@ -1,5 +1,7 @@
 #include "command.h"
 
+#include <fstream>
+
 std::string put_command::execute(const std::vector<std::string> &data)
 {
     if (data.size() < 2)
@@ -75,4 +77,18 @@ std::string del_command::execute(const std::vector<std::string> &data)
     auto val = storage_.del(data[0]);
 
     return (val.has_value() ? "OK " + val.value() : "NE");
+}
+
+std::string dump_command::execute(const std::vector<std::string> &data)
+{
+    //data[0] - filename
+    
+    //store json to provided file
+    std::ofstream f;
+    f.open(data[0]);
+    f << storage_.serialize().dump(4);
+    f.flush();
+    f.close();
+
+    return "OK";
 }

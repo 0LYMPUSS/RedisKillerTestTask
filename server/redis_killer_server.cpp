@@ -1,5 +1,6 @@
 #include <asio.hpp>
 #include <iostream>
+#include <fstream>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
@@ -33,7 +34,8 @@ int main(int argc, char* argv[]){
 
     int port = 13;
     int num_clients = 2;
-    std::string filename = "";
+    std::string filename;
+    json data;
 
 
     std::unordered_map<std::string, std::string> args{};
@@ -58,7 +60,8 @@ int main(int argc, char* argv[]){
                 port = std::stoi(arg.second);
             } catch (...) {
                 std::cout << "Incorrect input format. Port should be a number.\n";
-                std::cout << "usage server -p <port> -n <num_clients> -f <file-name>\n";
+                std::cout << "Usage: server -p <port> -n <num_clients> -f <file-name>\n";
+                spdlog::critical("Incorrect input format. Shutting down.");
                 return -1;
             }
         }
@@ -69,7 +72,8 @@ int main(int argc, char* argv[]){
                 num_clients = std::stoi(arg.second);
             } catch (...) {
                 std::cout << "Incorrect input format. Number of clients should be a number.\n";
-                std::cout << "usage server -p <port> -n <num_clients> -f <file-name>\n";
+                std::cout << "Usage: server -p <port> -n <num_clients> -f <file-name>\n";
+                spdlog::critical("Incorrect input format. Shutting down.");
                 return -1;
             }
         }
@@ -77,6 +81,14 @@ int main(int argc, char* argv[]){
         if (arg.first == "-f")
         {
             filename = arg.second;
+            try {
+                std::ifstream f(filename);
+                data = json::parse(f);
+            }
+            catch (...) 
+            {
+                spdlog::critical("Provided startup file <" + filename + "> doesn't exist. Please provide an existing file.");
+            }
         }
     }
 
@@ -93,8 +105,16 @@ int main(int argc, char* argv[]){
     try
     {
         asio::io_context io_context;
-        class tcp_server server(io_context, port, num_clients);
+        tcp_server* server;
+        if (!filename.empty())
+        {
+            server = new tcp_server(io_context, port, num_clients, data);
+        } else {
+            server = new tcp_server(io_context, port, num_clients);
+        }
         io_context.run();
+
+        delete(server);
     }
     catch(const std::exception& e)
     {

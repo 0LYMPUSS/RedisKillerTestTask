@@ -19,6 +19,16 @@ public:
             start_accept();
         }
 
+    tcp_server(asio::io_context& io_context, const asio::ip::port_type port, const int num_clients, const json& data)
+        : io_context_(io_context)
+        , acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))
+        , max_clients(num_clients)
+        {   
+            storage_.deserialize(data);
+            spdlog::info("Server is up");
+            start_accept();
+        }
+
 private:
     void start_accept()
     {

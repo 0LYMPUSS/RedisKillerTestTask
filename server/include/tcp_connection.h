@@ -137,6 +137,7 @@ private:
         commands.insert({"PUT", new put_command(storage_)});
         commands.insert({"GET", new get_command(storage_)});
         commands.insert({"DEL", new del_command(storage_)});
+        commands.insert({"DUMP", new dump_command(storage_)});
     }
 
     int& clients_;
