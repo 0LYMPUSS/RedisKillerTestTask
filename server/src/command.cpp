@@ -7,7 +7,8 @@ std::string put_command::execute(const std::vector<std::string> &data)
         spdlog::warn("Not enough arguments provided to command PUT. Recieved " 
             + std::to_string(data.size()) + ". Expected 2.");
         return "Not enough arguements to coplete command. No value was added.";
-    } else if (data.size() > 2) 
+    } 
+    else if (data.size() > 2) 
     {
         spdlog::warn("Too many arguments provided to command PUT. Recieved " 
             + std::to_string(data.size()) + ". Expected 2.");
@@ -31,3 +32,24 @@ std::string count_command::execute(const std::vector<std::string>& data)
         }
         return "OK " + std::to_string(storage_command::storage_.count());
     }
+
+std::string get_command::execute(const std::vector<std::string> &data)
+{
+    if (data.size() < 1)
+    {
+        spdlog::warn("Not enough arguments provided to command GET. Recieved " 
+            + std::to_string(data.size()) + ". Expected 1.");
+        return "Not enough arguements to coplete command.";
+    } 
+    else if (data.size() > 1) 
+    {
+        spdlog::warn("Too many arguments provided to command GET. Recieved " 
+            + std::to_string(data.size()) + ". Expected 1.");
+    }
+    
+    spdlog::debug("GET command called with key <" + data[0] + ">.");
+
+    auto val = storage_.get(data[0]);
+
+    return (val.has_value() ? "OK " + val.value() : "NE");
+}

@@ -76,7 +76,7 @@ std::optional<v> storage_map<k, v>::get(const k &key)
         spdlog::debug("Value <" + storage_.at(key) + "> corresponding to key <" + key + "> was found.");
         return std::optional<v>(storage_.at(key));
     }
-    spdlog::warn("No value corresponding to given key <" + key + "< exists. No value returned.");
+    spdlog::warn("No value corresponding to given key <" + key + "> exists. No value returned.");
     return std::nullopt;
 }
 

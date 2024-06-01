@@ -119,6 +119,7 @@ private:
     void register_commands() {
         commands.insert({"COUNT", new count_command(storage_)});
         commands.insert({"PUT", new put_command(storage_)});
+        commands.insert({"GET", new get_command(storage_)});
     }
 
 };

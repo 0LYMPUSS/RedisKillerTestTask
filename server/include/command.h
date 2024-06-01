@@ -49,3 +49,15 @@ public:
     virtual std::string execute(const std::vector<std::string>& data) override;
     
 };
+
+/// @brief Defines GET storage command that returns a value to the client
+class get_command
+    : public storage_command
+{
+public:
+    get_command(storage_map<std::string, std::string>& strg)
+        : storage_command(strg) {}
+
+    virtual std::string execute(const std::vector<std::string>& data) override;
+    
+};
