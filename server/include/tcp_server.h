@@ -14,7 +14,7 @@ public:
         : io_context_(io_context)
         , acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), 13))
         {   
-            spdlog::warn("Server is up again");
+            spdlog::info("Server is up");
             start_accept();
         }
 
@@ -37,5 +37,5 @@ private:
         start_accept(); 
     }
 
-    storage<std::string, std::string> storage_;
+    storage_map<std::string, std::string> storage_;
 };

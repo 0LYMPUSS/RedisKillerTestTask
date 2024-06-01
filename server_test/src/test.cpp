@@ -5,7 +5,7 @@
 
 
 TEST(storage_testing, storage_count_empty) {
-    storage<std::string, std::string> storage_ = storage<std::string, std::string>();
+    storage_map<std::string, std::string> storage_ = storage_map<std::string, std::string>();
     EXPECT_EQ(storage_.count(), 0);
 }
 
@@ -16,7 +16,7 @@ protected:
 
     virtual void SetUp()
     {
-        storage_ = new storage<std::string, std::string>();
+        storage_ = new storage_map<std::string, std::string>();
         storage_->put("age", "23");
         storage_->put("name", old_name);
         storage_->put("occupation", "coder");
@@ -34,7 +34,7 @@ protected:
 
     }
 
-    storage<std::string, std::string>* storage_;
+    storage_map<std::string, std::string>* storage_;
     std::string old_name = "Nick";
     std::string non_existent_key = "fake";
     

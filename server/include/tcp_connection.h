@@ -14,7 +14,7 @@ class tcp_connection
 public:
     typedef std::shared_ptr<tcp_connection> pointer;
 
-    static pointer create(asio::io_context& io_context, storage<std::string, std::string>& storage_)
+    static pointer create(asio::io_context& io_context, storage_map<std::string, std::string>& storage_)
     {   
         return pointer(new tcp_connection(io_context, storage_));
     }
@@ -36,12 +36,23 @@ public:
         
     }
 
+    ~tcp_connection()
+    {
+        for (auto& cmd : commands)
+        {
+            delete(cmd.second);
+        }
+    }
+
 private:
 
-    tcp_connection(asio::io_context& io_context, storage<std::string, std::string>& strg) :
-        socket_(io_context), storage_(strg), COUNT(strg) {}
+    tcp_connection(asio::io_context& io_context, storage_map<std::string, std::string>& strg) :
+        socket_(io_context), storage_(strg)
+        {
+            register_commands();
+        }
 
-    storage<std::string, std::string>& storage_;
+    storage_map<std::string, std::string>& storage_;
 
     void handle_write(const asio::error_code&, size_t) 
     {
@@ -53,17 +64,31 @@ private:
             asio::placeholders::error, asio::placeholders::bytes_transferred));
     }
 
-    void handle_read(const asio::error_code&, size_t len)  
+    void handle_read(const asio::error_code& error, size_t len)  
     {
+        if (error) {
+            spdlog::error("Client disconnected!");
+            return;
+        }
         message_.commit(len);
 
         std::istream is(&message_);
-        std::string str;
-        std::getline(is, str);
+        std::vector<char> arr(len);
+        is.getline(&arr[0], len);
+        std::string init(arr.data(), len - 1);
+        std::istringstream iss(init);
 
-        std::cout << "msg recieved " << str << '\n';
+        std::string cmd;
+        std::vector<std::string> args;
 
-        response_msg = process_message(str); 
+        iss >> cmd;
+        
+        std::string tmp;
+        while(iss >> tmp) {
+            args.push_back(tmp);
+        }
+
+        response_msg = process_message(cmd, args); 
 
         asio::async_write(socket_, asio::buffer(response_msg), 
             std::bind(&tcp_connection::handle_write, shared_from_this(),
@@ -77,13 +102,23 @@ private:
     asio::streambuf message_;
     std::string response_msg;
 
-    std::string process_message(const std::string& msg)
+    std::string process_message(const std::string& cmd, const std::vector<std::string>& args)
     {
-        return "client said: " + msg;
+        // handle incorrect commands
+        // incorrect argument list will be handled by commands
+        if (!commands.contains(cmd)) {
+            return "Given command <" + cmd + "> doesn't exist! Commands are case sensitive!";
+        }
+        return commands.at(cmd)->execute(args);
     }
 
-    //commands
+    // COMMANDS \\
+    //command map
+    std::unordered_map<std::string, command*> commands;
 
-    count_command<std::string, std::string> COUNT;
+    void register_commands() {
+        commands.insert({"COUNT", new count_command(storage_)});
+        commands.insert({"PUT", new put_command(storage_)});
+    }
 
 };

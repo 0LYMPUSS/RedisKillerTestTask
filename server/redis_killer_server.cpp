@@ -17,11 +17,14 @@ int main(){
     console_sink->set_level(spdlog::level::warn);
 
     auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/server_log.txt", true);
+    file_sink->set_level(spdlog::level::info);
+
+#ifdef _DEBUG
+    console_sink->set_level(spdlog::level::debug);
     file_sink->set_level(spdlog::level::trace);
+#endif
 
     auto logger = spdlog::logger("new_logger", {console_sink, file_sink});
-
-    logger.set_level(spdlog::level::debug);
 
     spdlog::set_default_logger(std::make_shared<spdlog::logger>(logger));
     spdlog::flush_on(spdlog::level::trace);

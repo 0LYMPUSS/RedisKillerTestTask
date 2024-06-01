@@ -21,7 +21,8 @@ int main(int argc, char* argv[]){
         asio::connect(socket, endpoints);
 
         for(;;) {
-            std::array<char, 128> buf;
+            std::array<char, 128> read_buf;
+            std::array<char, 128> write_buf;
             asio::error_code error;
             std::string command;
 
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]){
             socket.send(asio::buffer(command + '\n'));
 
             // recieve msg from client
-            size_t len = socket.read_some(asio::buffer(buf), error);
+            size_t len = socket.read_some(asio::buffer(read_buf), error);
 
             if (error == asio::error::eof)
             {
@@ -44,8 +45,8 @@ int main(int argc, char* argv[]){
                 throw asio::system_error(error);
             }
             
-            // print response from client
-            std::cout.write(buf.data(), len);
+            // print response from server
+            std::cout.write(read_buf.data(), len);
             std::cout << '\n';
         }
 

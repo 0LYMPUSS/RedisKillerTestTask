@@ -11,10 +11,10 @@
 /// @tparam k key
 /// @tparam v value
 template<class k, class v>
-class storage_base
+class storage
 {
 public:
-    virtual ~storage_base() = default;
+    virtual ~storage() = default;
 
     //returns a value corresponding to given key if key exists or null if the key doesn't exist
     virtual std::optional<v> get(const k& key) = 0;
@@ -30,8 +30,8 @@ public:
 
 
 template<class k, class v>
-class storage :
-    public storage_base<k, v>, public i_serializable
+class storage_map :
+    public storage<k, v>, public i_serializable
 {
 public:
 
@@ -50,13 +50,13 @@ public:
     };
     virtual void deserialize(json j) override {};
 
-    storage()
+    storage_map()
     {
         storage_ = std::unordered_map<k, v>();
         spdlog::debug("Storage created.");
     }
 
-    storage(json j)
+    storage_map(json j)
     {
         storage_ = std::unordered_map<k, v>();
         deserialize(j);
@@ -69,7 +69,7 @@ private:
 };
 
 template <class k, class v>
-std::optional<v> storage<k, v>::get(const k &key)
+std::optional<v> storage_map<k, v>::get(const k &key)
 {
     if (storage_.contains(key))
     {
@@ -81,7 +81,7 @@ std::optional<v> storage<k, v>::get(const k &key)
 }
 
 template <class k, class v>
-std::optional<v> storage<k, v>::put(const k& key, v val)
+std::optional<v> storage_map<k, v>::put(const k& key, v val)
 {
     v old_val;
     bool exists = storage_.contains(key);
@@ -99,7 +99,7 @@ std::optional<v> storage<k, v>::put(const k& key, v val)
 }
 
 template <class k, class v>
-std::optional<v> storage<k, v>::del(const k &key)
+std::optional<v> storage_map<k, v>::del(const k &key)
 {
     if (storage_.contains(key))
     {
@@ -117,7 +117,7 @@ std::optional<v> storage<k, v>::del(const k &key)
 
 
 template <class k, class v>
-size_t storage<k, v>::count()
+size_t storage_map<k, v>::count()
 {
     spdlog::debug("Current element count is " + std::to_string(storage_.size()) + ".");
     return storage_.size();
