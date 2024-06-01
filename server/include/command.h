@@ -61,3 +61,15 @@ public:
     virtual std::string execute(const std::vector<std::string>& data) override;
     
 };
+
+/// @brief Defines DEL storage command that removes value by given key and returns deleted valur to client
+class del_command
+    : public storage_command
+{
+public:
+    del_command(storage_map<std::string, std::string>& strg)
+        : storage_command(strg) {}
+
+    virtual std::string execute(const std::vector<std::string>& data) override;
+    
+};

@@ -53,3 +53,26 @@ std::string get_command::execute(const std::vector<std::string> &data)
 
     return (val.has_value() ? "OK " + val.value() : "NE");
 }
+
+std::string del_command::execute(const std::vector<std::string> &data)
+{
+    if (data.size() < 1)
+    {
+        spdlog::warn("Not enough arguments provided to command DEL. Recieved " 
+            + std::to_string(data.size()) + ". Expected 1.");
+        return "Not enough arguements to coplete command.";
+    } 
+    else if (data.size() > 1) 
+    {
+        spdlog::warn("Too many arguments provided to command DEL. Recieved " 
+            + std::to_string(data.size()) + ". Expected 1.");
+    }
+    
+    spdlog::debug("DEL command called with key <" + data[0]
+        + ">. Current element count is " 
+        + std::to_string(storage_command::storage_.count()) + ".");
+
+    auto val = storage_.del(data[0]);
+
+    return (val.has_value() ? "OK " + val.value() : "NE");
+}
