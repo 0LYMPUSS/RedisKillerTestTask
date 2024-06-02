@@ -62,13 +62,13 @@ cmake --build ./
 ### server
 Use the following command to start the server:
 ```
-./server -p 8888 -n 2
+./r_server -p 8888 -n 2
 ```
 where 8888 is the server port, 2 is the max number of clients that can connect at a time. 
 
 Use the following command if you have a startup file to initialize storage values:
 ```
-./server -n 2 -p 8888 -f my_dump.txt
+./r_server -n 2 -p 8888 -f my_dump.txt
 ```
 where my_dump.txt is a valid dump-file name.
 The order in which the arguments are provided is not important.
@@ -76,7 +76,7 @@ The order in which the arguments are provided is not important.
 ### client
 Use the following command to start the client:
 ```
-./client localhost 8888
+./r_client localhost 8888
 ```
 where the first argument is the name of the host and the second argument is the port number.
 

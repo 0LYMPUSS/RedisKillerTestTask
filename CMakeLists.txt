@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.11)
 project(RedisKillerServer)
 
 set (CMAKE_CXX_STANDARD 20)
@@ -49,7 +49,7 @@ include_directories(server/include asio/asio/include spdlog/include json/include
 
 add_library(server_lib ${SRC})
 
-add_executable(server server/redis_killer_server.cpp)
-add_executable(client client/redis_killer_client.cpp)
+add_executable(r_server server/redis_killer_server.cpp)
+add_executable(r_client client/redis_killer_client.cpp)
 
-target_link_libraries(server PRIVATE server_lib)
+target_link_libraries(r_server PRIVATE server_lib)
