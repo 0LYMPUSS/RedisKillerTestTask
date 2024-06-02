@@ -17,13 +17,13 @@ public:
     virtual ~storage() = default;
 
     //returns a value corresponding to given key if key exists or null if the key doesn't exist
-    virtual std::optional<v> get(const k& key) = 0;
+    virtual std::optional<v> get(const k& key) const = 0;
     //puts a value in storage, returns previous value if key already exists
-    virtual std::optional<v> put(const k&, v) = 0;
+    virtual std::optional<v> put(const k&key , const v& val) = 0;
     //removes a value corresponding to given key from storage, returns null if the key doesn't exist
     virtual std::optional<v> del(const k& key) = 0;
     //returns the amount of values currently stored
-    virtual size_t count() = 0;
+    virtual size_t count() const = 0;
 
 };
 
@@ -36,19 +36,16 @@ class storage_map :
 public:
 
     // Returns a value corresponding to given key if key exists or null if the key doesn't exist
-    virtual std::optional<v> get(const k& key) override;
+    virtual std::optional<v> get(const k& key) const override;
     // Puts a value in storage, returns previous value if key already exists
-    virtual std::optional<v> put(const k&, v) override;
+    virtual std::optional<v> put(const k& key, const v& val) override;
     // Removes a value corresponding to given key from storage, returns nullopt if the key doesn't exist
     virtual std::optional<v> del(const k& key) override;
     // Returns the amount of values currently stored in the storage
-    virtual size_t count() override;
+    virtual size_t count() const override;
 
-    virtual json serialize() override 
-    {
-        return json(storage_);
-    };
-    virtual void deserialize(json j) override 
+    virtual json serialize() override { return json(storage_); };
+    virtual void deserialize(const json& j) override 
     {
         try
         {
@@ -82,7 +79,7 @@ private:
 };
 
 template <class k, class v>
-std::optional<v> storage_map<k, v>::get(const k &key)
+std::optional<v> storage_map<k, v>::get(const k &key) const
 {
     if (storage_.contains(key))
     {
@@ -94,12 +91,12 @@ std::optional<v> storage_map<k, v>::get(const k &key)
 }
 
 template <class k, class v>
-std::optional<v> storage_map<k, v>::put(const k& key, v val)
+std::optional<v> storage_map<k, v>::put(const k& key, const v& val)
 {
     v old_val;
     bool exists = storage_.contains(key);
     if (exists) {
-        //delete old value otherwise it would still be stored. should i have used unordered_set?
+        //delete old value otherwise it would not be stored via insert method
         old_val = this->del(key).value();
     }
     storage_.insert({key, val});
@@ -130,7 +127,7 @@ std::optional<v> storage_map<k, v>::del(const k &key)
 
 
 template <class k, class v>
-size_t storage_map<k, v>::count()
+size_t storage_map<k, v>::count() const
 {
     spdlog::debug("Current element count is " + std::to_string(storage_.size()) + ".");
     return storage_.size();

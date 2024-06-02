@@ -98,10 +98,10 @@ int main(int argc, char* argv[]){
         spdlog::warn("No number of clients limit was provided, using default value of " + std::to_string(num_clients));
     }
 
+    tcp_server* server;
     try
     {
         asio::io_context io_context;
-        tcp_server* server;
         if (!filename.empty())
         {
             server = new tcp_server(io_context, port, num_clients, data);
@@ -115,6 +115,7 @@ int main(int argc, char* argv[]){
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        delete(server);
     }
     
     return 0;

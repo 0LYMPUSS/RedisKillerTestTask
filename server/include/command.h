@@ -74,6 +74,7 @@ public:
     
 };
 
+/// @brief Defines DEL command that serializes storage into provided file for later use on server startup
 class dump_command
     : public storage_command
 {
