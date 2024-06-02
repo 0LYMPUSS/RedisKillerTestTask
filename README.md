@@ -10,18 +10,16 @@ DUMP <file-name>
 ```
 
 # BUILD INSTRUCTIONS
+This section provides build instructions for Ubuntu (and presumably other Linux distributives).
 ## Supported platforms
 This code has been tested on:
 ```
-UNIX (UBUNTU)
+LINUX (UBUNTU)
 WINDOWS
 ```
 ## Requirements
-Some utilities that are needd to build the project. Skip this step if you have these utilities already installed.sudo
-### git
-```
-sudo apt-get install git-all
-```
+Some utilities that are needd to build the project. Skip this step if you have these utilities already installed.
+
 ### cmake
 Minimum required version is 3.11
 ```
